@@ -15,10 +15,7 @@ public class User {
     }
 
     public User(int id, String fname, String lname, int age, boolean gender) {
+        this(fname, lname, age, gender);
         this.id = id;
-        this.fname = fname;
-        this.lname = lname;
-        this.age = age;
-        this.gender = gender;
     }
 }
