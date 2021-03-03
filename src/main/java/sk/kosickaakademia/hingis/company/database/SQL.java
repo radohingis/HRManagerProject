@@ -1,13 +1,19 @@
 package sk.kosickaakademia.hingis.company.database;
 
+import sk.kosickaakademia.hingis.company.entity.User;
+import sk.kosickaakademia.hingis.company.enumerator.Gender;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
 public class SQL {
+
+    private final String INSERTQUERY = "insert into user (fname, lname, age, gender) values (?,?,?,?)";
 
     public Connection connect() {
         try {
@@ -45,5 +51,22 @@ public class SQL {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    public boolean insertNewUser(User user){
+        try(Connection connection = connect()) {
+            if(connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(INSERTQUERY);
+                preparedStatement.setString(1, user.getFname());
+                preparedStatement.setString(2, user.getLname());
+                preparedStatement.setInt(3, user.getAge());
+                preparedStatement.setInt(4, user.getGender().getValue());
+                int queryAffected = preparedStatement.executeUpdate();
+                return queryAffected == 1;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return false;
     }
 }
