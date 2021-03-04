@@ -13,7 +13,7 @@ public class User {
         this.fname = fname;
         this.lname = lname;
         this.age = age;
-        this.gender = gender == 0 ? Gender.MALE : gender == 1 ? Gender.FEMALE : Gender.OTHER;
+        this.gender = gender == 0 ? Gender.male : gender == 1 ? Gender.female : Gender.other;
     }
 
     public User(int id, String fname, String lname, int age, int gender) {
@@ -39,5 +39,9 @@ public class User {
 
     public Gender getGender() {
         return gender;
+    }
+
+    public void stringify() {
+        System.out.println(getId() + " " + getFname() + " " + getLname() + " " + getAge() + " " + getGender());
     }
 }
