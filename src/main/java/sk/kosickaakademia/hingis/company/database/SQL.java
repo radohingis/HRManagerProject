@@ -68,25 +68,48 @@ public class SQL {
         return false;
     }
 
+    public PreparedStatement selectByGender(int gender) {
+        if(gender >= 0){
+            try(Connection connection = connect()) {
+                String SELECTBYGENDERQUERY = "select * from user where gender = ?";
+                PreparedStatement preparedStatement = connection.prepareStatement(SELECTBYGENDERQUERY);
+                preparedStatement.setInt(1, gender);
+                execute(preparedStatement);
+            }catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return null;
+    }
 
-
-    private List<User> execute(PreparedStatement preparedStatement) {
+    private List<User> executeSelect(PreparedStatement preparedStatement) {
         List<User> userList = new ArrayList<>();
         int results = 0;
         try {
             ResultSet resultSet = preparedStatement.executeQuery();
-            while(resultSet.next()) {
-                results++;
-                int id = resultSet.getInt("id");
-                String fname = resultSet.getString("fname");
-                String lname = resultSet.getString("lname");
-                int age = resultSet.getInt("age");
-                int gender = resultSet.getInt("gender");
-                userList.add(new User(id, fname, lname, age, gender));
+            if(resultSet != null) {
+                while(resultSet.next()) {
+                    results++;
+                    int id = resultSet.getInt("id");
+                    String fname = resultSet.getString("fname");
+                    String lname = resultSet.getString("lname");
+                    int age = resultSet.getInt("age");
+                    int gender = resultSet.getInt("gender");
+                    userList.add(new User(id, fname, lname, age, gender));
+                    System.out.println(id + " " + fname + " " + lname + " " + age + " " + gender);
+                }
+            } else {
+                System.out.println("No users found");
+                return null;
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        return userList;
+        if(userList.size() != 0) {
+            return userList;
+        } else {
+            System.out.println("No users found");
+            return null;
+        }
     }
 }
