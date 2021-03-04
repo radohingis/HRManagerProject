@@ -5,15 +5,12 @@ import sk.kosickaakademia.hingis.company.enumerator.Gender;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class SQL {
-
-    private final String INSERTQUERY = "insert into user (fname, lname, age, gender) values (?,?,?,?)";
 
     public Connection connect() {
         try {
@@ -56,6 +53,7 @@ public class SQL {
     public boolean insertNewUser(User user){
         try(Connection connection = connect()) {
             if(connection != null) {
+                String INSERTQUERY = "insert into user (fname, lname, age, gender) values (?,?,?,?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERTQUERY);
                 preparedStatement.setString(1, user.getFname());
                 preparedStatement.setString(2, user.getLname());
@@ -68,5 +66,25 @@ public class SQL {
             throwables.printStackTrace();
         }
         return false;
+    }
+
+    public List<User> execute(PreparedStatement preparedStatement) {
+        List<User> userList = new ArrayList<>();
+        int results = 0;
+        try {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while(resultSet.next()) {
+                results++;
+                int id = resultSet.getInt("id");
+                String fname = resultSet.getString("fname");
+                String lname = resultSet.getString("lname");
+                int age = resultSet.getInt("age");
+                int gender = resultSet.getInt("gender");
+                userList.add(new User(id, fname, lname, age, gender));
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return userList;
     }
 }

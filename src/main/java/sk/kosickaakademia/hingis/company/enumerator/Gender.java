@@ -9,7 +9,7 @@ public enum Gender {
         this.value  = value;
     }
 
-    public int getValue(){
+    public int getValue() {
         return value;
     }
 }
