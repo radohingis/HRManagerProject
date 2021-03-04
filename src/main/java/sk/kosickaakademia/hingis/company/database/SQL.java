@@ -99,7 +99,28 @@ public class SQL {
         return null;
     }
     public User getUserById(int id) {
-
+        String GETUSERBYIDQUERY = "select * from user where id = ?";
+        try(Connection connection = connect()){
+            if(connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(GETUSERBYIDQUERY);
+                preparedStatement.setInt(1, id);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if(resultSet.next()) {
+                    String fname = resultSet.getString("fname");
+                    String lname = resultSet.getString("lname");
+                    int age = resultSet.getInt("age");
+                    int gender = resultSet.getInt("gender");
+                    User user = new User(id, fname, lname, age, gender);
+                    user.stringify();
+                    return user;
+                } else {
+                    System.out.println("User not found");
+                    return null;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
         return null;
     }
 
@@ -116,8 +137,9 @@ public class SQL {
                     String lname = resultSet.getString("lname");
                     int age = resultSet.getInt("age");
                     int gender = resultSet.getInt("gender");
-                    userList.add(new User(id, fname, lname, age, gender));
-                    System.out.println(id + " " + fname + " " + lname + " " + age + " " + gender);
+                    User user = new User(id, fname, lname, age, gender);
+                    user.stringify();
+                    userList.add(user);
                 }
             } else {
                 System.out.println("No users found");
