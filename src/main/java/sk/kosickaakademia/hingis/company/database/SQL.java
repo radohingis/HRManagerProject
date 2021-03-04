@@ -68,7 +68,9 @@ public class SQL {
         return false;
     }
 
-    public List<User> execute(PreparedStatement preparedStatement) {
+
+
+    private List<User> execute(PreparedStatement preparedStatement) {
         List<User> userList = new ArrayList<>();
         int results = 0;
         try {
