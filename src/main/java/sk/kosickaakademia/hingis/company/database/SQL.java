@@ -134,6 +134,28 @@ public class SQL {
         return false;
     }
 
+    public boolean changeUserAge(int id, int newAge) {
+        String CHANGEUSERSAGEQUERY = "update user set age = ? where id = ?";
+        if(id > 0 && (!(newAge > 99) && !(newAge < 1))) {
+            try (Connection connection = connect()) {
+                PreparedStatement preparedStatement = connection.prepareStatement(CHANGEUSERSAGEQUERY);
+                preparedStatement.setInt(1, newAge);
+                preparedStatement.setInt(2, id);
+                preparedStatement.executeUpdate();
+                System.out.println("Update executed");
+                return true;
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            System.out.println("Wrong parameters");
+            System.out.println("ID can't be less than zero");
+            System.out.println("Age must be between 1 and 99");
+            return false;
+        }
+        return false;
+    }
+
     private List<User> executeSelect(PreparedStatement preparedStatement) {
         List<User> userList = new ArrayList<>();
         int results = 0;
