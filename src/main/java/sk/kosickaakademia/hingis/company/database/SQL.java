@@ -65,37 +65,36 @@ public class SQL {
         return false;
     }
 
-    public boolean selectByGender(int gender) {
+    public List<User> selectByGender(int gender) {
         if(gender >= 0){
             try(Connection connection = connect()) {
                 String SELECTBYGENDERQUERY = "select * from user where gender = ?";
                 PreparedStatement preparedStatement = connection.prepareStatement(SELECTBYGENDERQUERY);
                 preparedStatement.setInt(1, gender);
-                executeSelect(preparedStatement);
-                return true;
+                return executeSelect(preparedStatement);
             }catch (SQLException ex) {
                 ex.printStackTrace();
             }
         }
-        return false;
+        return null;
     }
 
-    public boolean selectRangeBasedOnUserAge(int from, int to) {
+    public List<User> selectRangeBasedOnUserAge(int from, int to) {
         if(from > to) {
             System.out.println("Input should be ascending");
-            return false;
+            return null;
         } else {
             try(Connection connection = connect()) {
                 String AGERANGESELECTIONQUERY = "select * from user where age between ? and ?";
                 PreparedStatement preparedStatement = connection.prepareStatement(AGERANGESELECTIONQUERY);
                 preparedStatement.setInt(1, from);
                 preparedStatement.setInt(2, to);
-                executeSelect(preparedStatement);
+                return executeSelect(preparedStatement);
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
         }
-        return false;
+        return null;
     }
 
     public User getUserById(int id) {
@@ -122,16 +121,15 @@ public class SQL {
         return null;
     }
 
-    public boolean getAllUsers() {
+    public List<User> getAllUsers() {
         String GETALLSUERSQUERY = "select * from user";
         try(Connection connection = connect()) {
                 PreparedStatement preparedStatement = connection.prepareStatement(GETALLSUERSQUERY);
-                executeSelect(preparedStatement);
-                return true;
+                return executeSelect(preparedStatement);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        return false;
+        return null;
     }
 
     public boolean changeUserAge(int id, int newAge) {
@@ -141,9 +139,8 @@ public class SQL {
                 PreparedStatement preparedStatement = connection.prepareStatement(CHANGEUSERSAGEQUERY);
                 preparedStatement.setInt(1, newAge);
                 preparedStatement.setInt(2, id);
-                preparedStatement.executeUpdate();
-                System.out.println("Update executed");
-                return true;
+                int queriesAffected = preparedStatement.executeUpdate();
+                return queriesAffected == 1;
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -154,6 +151,25 @@ public class SQL {
             return false;
         }
         return false;
+    }
+
+    public List<User> getUsersByPattern(String pattern) {
+        String GETUSERBYPATTERNQUERY = "select * from user where fname like ? or lname like ?";
+        String formatedPattern = "%" + pattern + "%";
+        if(pattern.equals("")) {
+            System.out.println("Pattern required");
+            return null;
+        } else {
+            try(Connection connection = connect()) {
+                PreparedStatement preparedStatement = connection.prepareStatement(GETUSERBYPATTERNQUERY);
+                preparedStatement.setString(1, formatedPattern);
+                preparedStatement.setString(2, formatedPattern);
+                return executeSelect(preparedStatement);
+            } catch (SQLException ex){
+                ex.printStackTrace();
+            }
+        }
+        return null;
     }
 
     private List<User> executeSelect(PreparedStatement preparedStatement) {
