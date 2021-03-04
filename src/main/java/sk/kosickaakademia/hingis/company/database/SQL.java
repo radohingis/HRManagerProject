@@ -51,7 +51,6 @@ public class SQL {
 
     public boolean insertNewUser(User user){
         try(Connection connection = connect()) {
-            if(connection != null) {
                 String INSERTQUERY = "insert into user (fname, lname, age, gender) values (?,?,?,?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERTQUERY);
                 preparedStatement.setString(1, user.getFname());
@@ -60,31 +59,31 @@ public class SQL {
                 preparedStatement.setInt(4, user.getGender().getValue());
                 int queryAffected = preparedStatement.executeUpdate();
                 return queryAffected == 1;
-            }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         return false;
     }
 
-    public PreparedStatement selectByGender(int gender) {
+    public boolean selectByGender(int gender) {
         if(gender >= 0){
             try(Connection connection = connect()) {
                 String SELECTBYGENDERQUERY = "select * from user where gender = ?";
                 PreparedStatement preparedStatement = connection.prepareStatement(SELECTBYGENDERQUERY);
                 preparedStatement.setInt(1, gender);
                 executeSelect(preparedStatement);
+                return true;
             }catch (SQLException ex) {
                 ex.printStackTrace();
             }
         }
-        return null;
+        return false;
     }
 
-    public PreparedStatement selectRangeBasedOnUserAge(int from, int to) {
+    public boolean selectRangeBasedOnUserAge(int from, int to) {
         if(from > to) {
-            System.out.println("Wrong ");
-            return null;
+            System.out.println("Input should be ascending");
+            return false;
         } else {
             try(Connection connection = connect()) {
                 String AGERANGESELECTIONQUERY = "select * from user where age between ? and ?";
@@ -96,12 +95,12 @@ public class SQL {
                 ex.printStackTrace();
             }
         }
-        return null;
+        return false;
     }
+
     public User getUserById(int id) {
         String GETUSERBYIDQUERY = "select * from user where id = ?";
         try(Connection connection = connect()){
-            if(connection != null) {
                 PreparedStatement preparedStatement = connection.prepareStatement(GETUSERBYIDQUERY);
                 preparedStatement.setInt(1, id);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -117,11 +116,22 @@ public class SQL {
                     System.out.println("User not found");
                     return null;
                 }
-            }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    public boolean getAllUsers() {
+        String GETALLSUERSQUERY = "select * from user";
+        try(Connection connection = connect()) {
+                PreparedStatement preparedStatement = connection.prepareStatement(GETALLSUERSQUERY);
+                executeSelect(preparedStatement);
+                return true;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return false;
     }
 
     private List<User> executeSelect(PreparedStatement preparedStatement) {
