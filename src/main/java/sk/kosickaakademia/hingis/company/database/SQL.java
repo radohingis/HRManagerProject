@@ -1,7 +1,6 @@
 package sk.kosickaakademia.hingis.company.database;
 
 import sk.kosickaakademia.hingis.company.entity.User;
-import sk.kosickaakademia.hingis.company.enumerator.Gender;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,8 +73,26 @@ public class SQL {
                 String SELECTBYGENDERQUERY = "select * from user where gender = ?";
                 PreparedStatement preparedStatement = connection.prepareStatement(SELECTBYGENDERQUERY);
                 preparedStatement.setInt(1, gender);
-                execute(preparedStatement);
+                executeSelect(preparedStatement);
             }catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public PreparedStatement selectRangeBasedOnAge(int from, int to) {
+        if(from > to) {
+            System.out.println("Wrong ");
+            return null;
+        } else {
+            try(Connection connection = connect()) {
+                String AGERANGESELECTIONQUERY = "select * from user where age between ? and ?";
+                PreparedStatement preparedStatement = connection.prepareStatement(AGERANGESELECTIONQUERY);
+                preparedStatement.setInt(1, from);
+                preparedStatement.setInt(2, to);
+                executeSelect(preparedStatement);
+            } catch (SQLException ex) {
                 ex.printStackTrace();
             }
         }
