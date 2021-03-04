@@ -81,7 +81,7 @@ public class SQL {
         return null;
     }
 
-    public PreparedStatement selectRangeBasedOnAge(int from, int to) {
+    public PreparedStatement selectRangeBasedOnUserAge(int from, int to) {
         if(from > to) {
             System.out.println("Wrong ");
             return null;
@@ -96,6 +96,10 @@ public class SQL {
                 ex.printStackTrace();
             }
         }
+        return null;
+    }
+    public User getUserById(int id) {
+
         return null;
     }
 
