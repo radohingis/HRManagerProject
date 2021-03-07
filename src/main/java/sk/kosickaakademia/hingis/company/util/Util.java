@@ -2,11 +2,14 @@ package sk.kosickaakademia.hingis.company.util;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import sk.kosickaakademia.hingis.company.entity.User;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 public class Util {
 
@@ -21,8 +24,16 @@ public class Util {
 
     public String parseToJSON(User user) {
         JsonObject data = new JsonObject();
-        data.addProperty("date", getCurrentDateTime());
-        data.add("user", new Gson().toJsonTree(user));
-        return data.toString();
+        JsonElement parsedUser = new Gson().toJsonTree(user);
+        if (parsedUser != null) {
+            data.add("user", parsedUser);
+            data.addProperty("date", getCurrentDateTime());
+            return data.toString();
+        } else return "{}";
+    }
+
+    public String parseToJson(List<User> userList) {
+
+        return null;
     }
 }
