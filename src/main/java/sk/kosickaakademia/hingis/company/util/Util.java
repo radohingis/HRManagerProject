@@ -1,9 +1,8 @@
 package sk.kosickaakademia.hingis.company.util;
 
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import com.mysql.cj.xdevapi.JsonNumber;
 import sk.kosickaakademia.hingis.company.entity.User;
 
 import java.text.SimpleDateFormat;
@@ -22,18 +21,37 @@ public class Util {
         return formatter.format(dateNow);
     }
 
-    public String parseToJSON(User user) {
+    public String parseToJSON(User u) {
         JsonObject data = new JsonObject();
-        JsonElement parsedUser = new Gson().toJsonTree(user);
-        if (parsedUser != null) {
-            data.add("user", parsedUser);
+        JsonElement user = new Gson().toJsonTree(u);
+        if (user != null) {
+            data.add("user", user);
             data.addProperty("date", getCurrentDateTime());
-            return data.toString();
-        } else return "{}";
+
+            return new GsonBuilder().create().toJson(data);
+
+        } else
+
+            return "{}";
     }
 
-    public String parseToJson(List<User> userList) {
+    public String parseToJSON(List<User> userList) {
+        if (userList.size() != 0) {
+            JsonObject data = new JsonObject();
+            JsonArray usersArr = new JsonArray();
 
-        return null;
+            for (User u : userList) {
+                usersArr.add(new Gson().toJsonTree(u));
+            }
+
+            data.add("user", usersArr);
+            data.addProperty("date", getCurrentDateTime());
+            data.addProperty("num_of_results", userList.size());
+
+            return new GsonBuilder().create().toJson(data);
+
+        } else
+
+            return "{}";
     }
 }
