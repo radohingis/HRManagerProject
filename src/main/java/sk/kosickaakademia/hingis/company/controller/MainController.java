@@ -8,6 +8,8 @@ import sk.kosickaakademia.hingis.company.database.SQL;
 import sk.kosickaakademia.hingis.company.entity.User;
 import sk.kosickaakademia.hingis.company.util.Util;
 
+import java.util.List;
+
 @RestController
 public class MainController {
 
@@ -26,7 +28,15 @@ public class MainController {
     }
 
     @GetMapping("/users")
-    public String getAllUsers() {
-        return new Util().parseToJSON(new SQL().getAllUsers());
+    public ResponseEntity<String> getAllUsers() {
+        List<User> users = new SQL().getAllUsers();
+        if(users.size() >= 1) {
+            String usersJson = new Util().parseToJSON(users);
+            return ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(usersJson);
+        }
+        JsonObject error = new JsonObject();
+        error.addProperty("message", "something went wrong, be patient please");
+        error.addProperty("date", new Util().getCurrentDateTime());
+        return ResponseEntity.status(404).contentType(MediaType.APPLICATION_JSON).body(error.toString());
     }
 }
