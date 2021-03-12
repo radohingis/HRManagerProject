@@ -13,7 +13,6 @@ import java.util.List;
 @RestController
 public class MainController {
 
-
     @GetMapping("/user/{id}")
     public ResponseEntity<String> getUserById(@PathVariable int id) {
         User user = new SQL().getUserById(id);
@@ -21,9 +20,7 @@ public class MainController {
             String userJson = new Util().parseToJSON(user);
             return ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(userJson);
         }
-        JsonObject error = new JsonObject();
-        error.addProperty("message", "user not found, bad request");
-        error.addProperty("date", new Util().getCurrentDateTime());
+        JsonObject error = new Util().message("error", "invalid id");
         return ResponseEntity.status(400).contentType(MediaType.APPLICATION_JSON).body(error.toString());
     }
 
@@ -34,9 +31,7 @@ public class MainController {
             String usersJson = new Util().parseToJSON(users);
             return ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(usersJson);
         }
-        JsonObject error = new JsonObject();
-        error.addProperty("message", "something went wrong, be patient please");
-        error.addProperty("date", new Util().getCurrentDateTime());
+        JsonObject error = new Util().message("error", "something went wrong");
         return ResponseEntity.status(404).contentType(MediaType.APPLICATION_JSON).body(error.toString());
     }
 }
