@@ -3,6 +3,8 @@ package sk.kosickaakademia.hingis.company.util;
 
 import com.google.gson.*;
 import com.mysql.cj.xdevapi.JsonNumber;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import sk.kosickaakademia.hingis.company.entity.User;
 
 import java.text.SimpleDateFormat;
@@ -53,5 +55,12 @@ public class Util {
         } else
 
             return "{}";
+    }
+
+    public JsonObject message (String type, String message) {
+        JsonObject responseMessage = new JsonObject();
+        responseMessage.addProperty(type, message);
+        responseMessage.addProperty("date", new Util().getCurrentDateTime());
+        return responseMessage;
     }
 }
