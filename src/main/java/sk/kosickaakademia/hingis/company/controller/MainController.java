@@ -100,7 +100,13 @@ public class MainController {
             );
 
             new SQL().insertNewUser(validUser);
-            return OKrequest.body(null);
+            return ResponseEntity
+                    .status(201)
+                    .body(new Util()
+                            .message("success",
+                                    "user created")
+                            .toString()
+                    );
         }
     }
 
