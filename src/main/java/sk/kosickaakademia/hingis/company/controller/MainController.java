@@ -1,8 +1,6 @@
 package sk.kosickaakademia.hingis.company.controller;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +17,23 @@ public class MainController {
 
     private JsonObject badRequestMessage
                         = new Util()
-                        .message("error", "badrequest");
+                        .message("error", "bad request");
+
+    private JsonObject internalServerErrorMessage
+                        = new Util()
+                        .message("error", "internal server error");
 
     private ResponseEntity badRequest
                                     = ResponseEntity
                                     .status(400)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .body(badRequestMessage);
+
+    private ResponseEntity internalServerError
+                                    = ResponseEntity
+                                    .status(500)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .body(internalServerErrorMessage);
 
     @GetMapping("/user/{id}")
     public ResponseEntity<String> getUserById(@PathVariable int id) {
@@ -56,8 +64,9 @@ public class MainController {
                     .status(200)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(usersJson);
+        } else {
+            return internalServerError;
         }
-        return badRequest;
     }
 
     @PostMapping("/user/add")
@@ -91,6 +100,30 @@ public class MainController {
                     .status(200)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(null);
+        }
+    }
+
+    @GetMapping("/users/age")
+    public ResponseEntity<String> getUsersByAgeRange(@RequestParam(value="from") int from, @RequestParam(value="to") int to) {
+
+
+                    if(from < 1
+                    || to > 99
+                    || from > to)
+                    return badRequest;
+
+                    List<User> userList
+                            = new SQL()
+                            .selectRangeBasedOnUserAge(from, to);
+
+        if(userList.size() >= 1){
+            String data = new Util().parseToJSON(userList);
+            return ResponseEntity
+                    .status(200)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(data);
+        } else {
+            return internalServerError;
         }
     }
 }
