@@ -1,7 +1,6 @@
 package sk.kosickaakademia.hingis.company.controller;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,69 +14,75 @@ import java.util.List;
 @RestController
 public class MainController {
 
-    private JsonObject badRequestMessage
-                        = new Util()
-                        .message("error", "bad request");
+    private ResponseEntity
+            .BodyBuilder OKrequest
+            = ResponseEntity
+            .status(200)
+            .contentType(MediaType.APPLICATION_JSON);
 
-    private JsonObject internalServerErrorMessage
-                        = new Util()
-                        .message("error", "internal server error");
+    private ResponseEntity
+            .BodyBuilder badRequest
+            = ResponseEntity
+            .status(400)
+            .contentType(MediaType.APPLICATION_JSON);
 
-    private ResponseEntity badRequest
-                                    = ResponseEntity
-                                    .status(400)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .body(badRequestMessage);
+    private ResponseEntity
+            .BodyBuilder notFound
+            = ResponseEntity
+            .status(404)
+            .contentType(MediaType.APPLICATION_JSON);
 
-    private ResponseEntity internalServerError
-                                    = ResponseEntity
-                                    .status(500)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .body(internalServerErrorMessage);
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<String> getUserById(@PathVariable int id) {
+            public ResponseEntity<String>
+            getUserById(@PathVariable int id) {
 
         User user = new SQL().getUserById(id);
 
         if(user != null) {
 
-            String userJson = new Util().parseToJSON(user);
+            String data = new Util().parseToJSON(user);
 
-            return ResponseEntity
-                    .status(200)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(userJson);
+            return OKrequest.body(data);
         }
-        return badRequest;
+        return notFound.body(new Util()
+                            .message("error", "user with ID does not exist")
+                            .toString());
     }
 
     @GetMapping("/users")
-    public ResponseEntity<String> getAllUsers() {
+            public ResponseEntity<String>
+            getAllUsers() {
 
         List<User> users = new SQL().getAllUsers();
 
         if(users.size() >= 1) {
-            String usersJson = new Util().parseToJSON(users);
+            String data = new Util().parseToJSON(users);
 
-            return ResponseEntity
-                    .status(200)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(usersJson);
+            return OKrequest.body(data);
         } else {
-            return internalServerError;
+            return notFound.body(new Util()
+                                    .emptyArray()
+                                    .toString()
+            );
         }
     }
 
     @PostMapping("/user/add")
-    public ResponseEntity<String> addUser(@RequestBody String data) {
+            public ResponseEntity<String>
+            addUser(@RequestBody String data) {
 
         User user = new Gson().fromJson(data, User.class);
 
         if(user.getLname().equals("")
         || user.getFname().equals("")
         || user.getAge() < 1
-        || user.getAge() > 99) return badRequest;
+        || user.getAge() > 99) return badRequest
+                                        .body(new Util()
+                                                .message("error",
+                                                        "incorrect body, missing lname or fname or age,"
+                                                                + "age is zero or negative number")
+                                                .toString());
 
         else {
             Gender gender = (user.getGender() == null)
@@ -95,35 +100,75 @@ public class MainController {
             );
 
             new SQL().insertNewUser(validUser);
-
-            return ResponseEntity
-                    .status(200)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(null);
+            return OKrequest.body(null);
         }
     }
 
-    @GetMapping("/users/age")
-    public ResponseEntity<String> getUsersByAgeRange(@RequestParam(value="from") int from, @RequestParam(value="to") int to) {
+    @GetMapping(
+            value = "/users",
+            params = {"ageFrom", "ageTo"})
+            public ResponseEntity<String>
+            getUsersByAgeRange(
+                    @RequestParam(value="ageFrom",
+                                    defaultValue = "1")
+                                    int from,
+
+                    @RequestParam(value="ageTo",
+                                    defaultValue = "99")
+                                    int to) {
 
 
                     if(from < 1
                     || to > 99
-                    || from > to)
-                    return badRequest;
+                    || from > to) return badRequest.body(new Util()
+                            .message("error",
+                            "incorrect path, missing from/to or from is bigger than to").toString());
 
                     List<User> userList
                             = new SQL()
                             .selectRangeBasedOnUserAge(from, to);
 
-        if(userList.size() >= 1){
+        if(userList.size() >= 1) {
+
             String data = new Util().parseToJSON(userList);
-            return ResponseEntity
-                    .status(200)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(data);
-        } else {
-            return internalServerError;
+
+            return OKrequest.body(data);
+
+        }
+        return null;
+    }
+
+
+    @GetMapping(
+            value = "/users",
+            params = "gender")
+            public ResponseEntity<String>
+            getUsersByGender(
+                    @RequestParam(value = "gender",
+                                    required=false,
+                                    defaultValue = "")
+                                    String gender) {
+        if(gender.equals("")) return getAllUsers();
+
+        if(
+                !(gender.equals("male")
+                || gender.equals("female")
+                || gender.equals("other"))
+
+        ) return badRequest.body("{}");
+        else {
+            List<User> userList
+                    = new SQL().selectByGender(
+                    gender == "male" ? 0
+                            : gender == "female" ? 1
+                            : gender == "other" ? 2 : 2
+            );
+            if(userList.size() >= 1) {
+                String data = new Util().parseToJSON(userList);
+                return OKrequest.body(data);
+            } else {
+                return notFound.body(new Util().emptyArray().toString());
+            }
         }
     }
 }

@@ -63,4 +63,12 @@ public class Util {
         responseMessage.addProperty("date", new Util().getCurrentDateTime());
         return responseMessage;
     }
+
+    public JsonObject emptyArray () {
+        JsonObject responseMessage = new JsonObject();
+        responseMessage.addProperty("date", getCurrentDateTime());
+        responseMessage.addProperty("size", 0);
+        responseMessage.addProperty("user", "[]");
+        return responseMessage;
+    }
 }
