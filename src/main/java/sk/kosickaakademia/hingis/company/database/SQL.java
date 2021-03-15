@@ -64,6 +64,65 @@ public class SQL {
         }
         return false;
     }
+    
+    public boolean updateUser(int id, String column, String value) {
+            String UPDATEUSERQUERY;
+
+            if(!(column.equalsIgnoreCase("fname")
+            || column.equalsIgnoreCase("lname")
+            || column.equalsIgnoreCase("age")
+            || column.equalsIgnoreCase("gender"))) {
+
+                System.out.println("column doesn't exist");
+                return false;
+            }
+
+            if(     column.equalsIgnoreCase("age")
+                    || column.equalsIgnoreCase("gender")) {
+
+                    int numberValue = Integer.parseInt(value);
+                    UPDATEUSERQUERY = "update user set " + column + "=" + numberValue + " where id = ?";
+
+            } else {
+
+                    UPDATEUSERQUERY = "update user set " + column + "=\'" + value + "\' where id = ?";
+
+            }
+            if(id < 1 || column.isEmpty() || value.isEmpty()) return false;
+
+            if(column.equalsIgnoreCase("age")
+                    && (Integer.parseInt(value) < 1
+                    || Integer.parseInt(value) > 99)) {
+
+                System.out.println("out of boundaries");
+                return false;
+            }
+
+            if(column.equalsIgnoreCase("gender")
+                    && (Integer.parseInt(value) < 0
+                    || Integer.parseInt(value) > 2)) {
+
+                System.out.println("out of boundaries");
+                return false;
+            }
+
+            else {
+                try(Connection connection = connect()) {
+                    PreparedStatement preparedStatement
+                            = connection
+                            .prepareStatement(UPDATEUSERQUERY);
+
+                    preparedStatement.setInt(1, id);
+                    System.out.println(preparedStatement);
+                    preparedStatement.executeUpdate();
+                    return true;
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+        return false;
+    }
 
     public List<User> selectByGender(int gender) {
         if(gender >= 0){
@@ -130,27 +189,6 @@ public class SQL {
             ex.printStackTrace();
         }
         return null;
-    }
-
-    public boolean changeUserAge(int id, int newAge) {
-        String CHANGEUSERSAGEQUERY = "update user set age = ? where id = ?";
-        if(id > 0 && (!(newAge > 99) && !(newAge < 1))) {
-            try (Connection connection = connect()) {
-                PreparedStatement preparedStatement = connection.prepareStatement(CHANGEUSERSAGEQUERY);
-                preparedStatement.setInt(1, newAge);
-                preparedStatement.setInt(2, id);
-                int queriesAffected = preparedStatement.executeUpdate();
-                return queriesAffected == 1;
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        } else {
-            System.out.println("Wrong parameters");
-            System.out.println("ID can't be less than zero");
-            System.out.println("Age must be between 1 and 99");
-            return false;
-        }
-        return false;
     }
 
     public List<User> getUsersByPattern(String pattern) {
