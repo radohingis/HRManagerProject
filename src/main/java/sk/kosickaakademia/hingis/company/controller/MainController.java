@@ -1,6 +1,7 @@
 package sk.kosickaakademia.hingis.company.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +62,7 @@ public class MainController {
 
             return OKrequest.body(data);
         } else {
-            return notFound.body(new Util()
+            return OKrequest.body(new Util()
                                     .emptyArray()
                                     .toString()
             );
@@ -112,14 +113,14 @@ public class MainController {
 
     @GetMapping(
             value = "/users",
-            params = {"ageFrom", "ageTo"})
+            params = {"fromAge", "toAge"})
             public ResponseEntity<String>
             getUsersByAgeRange(
-                    @RequestParam(value="ageFrom",
+                    @RequestParam(value="fromAge",
                                     defaultValue = "1")
                                     int from,
 
-                    @RequestParam(value="ageTo",
+                    @RequestParam(value="toAge",
                                     defaultValue = "99")
                                     int to) {
 
@@ -134,14 +135,18 @@ public class MainController {
                             = new SQL()
                             .selectRangeBasedOnUserAge(from, to);
 
-        if(userList.size() >= 1) {
+                    if(userList.size() >= 1) {
 
-            String data = new Util().parseToJSON(userList);
+                    String data = new Util().parseToJSON(userList);
 
-            return OKrequest.body(data);
+                    return OKrequest.body(data);
 
-        }
-        return null;
+                    }
+                    else {
+                        JsonObject data = new Util().emptyArray();
+                        return OKrequest.body(data.toString());
+
+                    }
     }
 
 
@@ -165,15 +170,15 @@ public class MainController {
         else {
             List<User> userList
                     = new SQL().selectByGender(
-                    gender == "male" ? 0
-                            : gender == "female" ? 1
-                            : gender == "other" ? 2 : 2
+                            gender.equals("male") ? 0
+                            : gender.equals("female") ? 1
+                            : gender.equals("other") ? 2 : 2
             );
             if(userList.size() >= 1) {
                 String data = new Util().parseToJSON(userList);
                 return OKrequest.body(data);
             } else {
-                return notFound.body(new Util().emptyArray().toString());
+                return OKrequest.body(new Util().emptyArray().toString());
             }
         }
     }
