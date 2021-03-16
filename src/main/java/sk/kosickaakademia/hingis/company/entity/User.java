@@ -25,6 +25,10 @@ public class User {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getFname() {
         return fname;
     }
@@ -41,7 +45,7 @@ public class User {
         return gender;
     }
 
-    public void stringify() {
-        System.out.println(getId() + " " + getFname() + " " + getLname() + " " + getAge() + " " + getGender());
+    public String stringify() {
+        return getId() + " " + getFname() + " " + getLname() + " " + getAge() + " " + getGender();
     }
 }

@@ -85,7 +85,7 @@ public class SQL {
 
             } else {
 
-                    UPDATEUSERQUERY = "update user set " + column + "=\'" + value + "\' where id = ?";
+                    UPDATEUSERQUERY = "update user set " + column + "=\'" + value.toLowerCase() + "\' where id = ?";
 
             }
             if(id < 1 || column.isEmpty() || value.isEmpty()) return false;
