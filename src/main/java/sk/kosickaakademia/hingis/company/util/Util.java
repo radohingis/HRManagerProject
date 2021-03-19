@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 public class Util {
 
@@ -70,5 +71,23 @@ public class Util {
         responseMessage.addProperty("size", 0);
         responseMessage.addProperty("user", "[]");
         return responseMessage;
+    }
+
+    public String getToken () {
+        String token = "";
+        Random random = new Random();
+        for (int i = 0; i < 40; i++) {
+            int acc = random.nextInt(3);
+            switch (acc) {
+
+                case 0: token = token + (char) (random.nextInt(26)+65); break;
+                case 1: token = token + (char) (random.nextInt(26)+97); break;
+                case 2: token = token + (char) (random.nextInt(10)+48); break;
+
+            }
+        }
+
+        return token;
+
     }
 }
