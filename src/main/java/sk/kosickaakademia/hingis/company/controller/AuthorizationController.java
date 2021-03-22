@@ -44,8 +44,7 @@ public class AuthorizationController {
 
                 jsonObject.addProperty("login", login);
 
-                tokens.put("login", login);
-                tokens.put("token", token);
+                tokens.put(login, token);
 
                 jsonObject.addProperty("token", "Bearer " + token);
 
@@ -64,12 +63,28 @@ public class AuthorizationController {
         System.out.println(token);
 
         for (Map.Entry<String, String> entry : tokens.entrySet()) {
-            System.out.println(entry.getValue());
             if(entry.getValue().equals(token)){
                 return "secret";
             }
         }
         return "Invalid token";
+    }
+
+    @DeleteMapping("/logout")
+    public ResponseEntity<String> logout (@RequestHeader("token") String header) {
+        String token = header.substring(7);
+
+        if(!token.isEmpty()){
+            for (Map.Entry<String, String> entry : tokens.entrySet()) {
+                if(entry.getValue().equals(token)){
+                    tokens.remove(entry.getKey());
+                }
+            }
+            return ResponseEntity.ok("Logged out");
+        }
+
+        return ResponseEntity.badRequest().body("Something went wrong, you will be redirected to log in page");
+
     }
 
 }
