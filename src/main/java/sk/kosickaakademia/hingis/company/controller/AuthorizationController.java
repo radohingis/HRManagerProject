@@ -43,10 +43,9 @@ public class AuthorizationController {
                 String token = new Util().getToken();
 
                 jsonObject.addProperty("login", login);
+                jsonObject.addProperty("token", "Bearer " + token);
 
                 tokens.put(login, token);
-
-                jsonObject.addProperty("token", "Bearer " + token);
 
                 return ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(jsonObject.toString());
             }
@@ -57,7 +56,6 @@ public class AuthorizationController {
 
     @GetMapping("/secret")
     public String secret(@RequestHeader("token") String header){
-
         String token = header.substring(7);
 
         System.out.println(token);
@@ -78,12 +76,51 @@ public class AuthorizationController {
             for (Map.Entry<String, String> entry : tokens.entrySet()) {
                 if(entry.getValue().equals(token)){
                     tokens.remove(entry.getKey());
+                    break;
                 }
             }
             return ResponseEntity.ok("Logged out");
         }
 
         return ResponseEntity.badRequest().body("Something went wrong, you will be redirected to log in page");
+
+    }
+
+    @GetMapping("/privacylimitedinfo")
+    public ResponseEntity<String> getData (@RequestBody String body) {
+
+        JsonObject jsonBody = new Gson().fromJson(body, JsonObject.class);
+
+
+
+        String token = jsonBody
+                        .get("token")
+                        .getAsString()
+                        .length() > 7
+
+                     ? jsonBody
+                        .get("token")
+                        .getAsString()
+                        .substring(7)
+
+                     : jsonBody
+                        .get("token")
+                        .getAsString();
+
+        System.out.println(token);
+
+        if (!token.isEmpty()) {
+            for (Map.Entry<String, String> entry : tokens.entrySet()) {
+                if(entry.getValue().equals(token)) {
+
+                    return ResponseEntity.ok("private data");
+
+                }
+            }
+
+        }
+
+            return ResponseEntity.ok("public data");
 
     }
 
