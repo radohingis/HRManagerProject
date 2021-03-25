@@ -193,15 +193,14 @@ public class SQL {
 
     public List<User> getUsersByPattern(String pattern) {
         String GETUSERBYPATTERNQUERY = "select * from user where fname like ? or lname like ?";
-        String formatedPattern = "%" + pattern + "%";
         if(pattern.equals("")) {
             System.out.println("Pattern required");
             return null;
         } else {
             try(Connection connection = connect()) {
                 PreparedStatement preparedStatement = connection.prepareStatement(GETUSERBYPATTERNQUERY);
-                preparedStatement.setString(1, formatedPattern);
-                preparedStatement.setString(2, formatedPattern);
+                preparedStatement.setString(1, "%" + pattern + "%");
+                preparedStatement.setString(2, "%" + pattern + "%");
                 return executeSelect(preparedStatement);
             } catch (SQLException ex){
                 ex.printStackTrace();
@@ -224,7 +223,6 @@ public class SQL {
                     int age = resultSet.getInt("age");
                     int gender = resultSet.getInt("gender");
                     User user = new User(id, fname, lname, age, gender);
-                    user.stringify();
                     userList.add(user);
                 }
             } else {

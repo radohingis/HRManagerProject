@@ -1,7 +1,6 @@
 package sk.kosickaakademia.hingis.company.controller;
 
 import com.google.gson.*;
-import net.minidev.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,8 +8,6 @@ import sk.kosickaakademia.hingis.company.database.SQL;
 import sk.kosickaakademia.hingis.company.entity.User;
 import sk.kosickaakademia.hingis.company.enumerator.Gender;
 import sk.kosickaakademia.hingis.company.util.Util;
-
-import java.lang.reflect.Field;
 import java.util.*;
 
 @RestController
@@ -223,6 +220,29 @@ public class MainController {
         }
         return null;
     }
+
+    @GetMapping("/user")
+    public ResponseEntity<String> searchByPattern (@RequestParam(value = "search") String pattern){
+        if(!pattern.isEmpty()) {
+            List<User> list = new SQL().getUsersByPattern(pattern);
+
+            if (list.size() >= 1) {
+
+                String data = new Util().parseToJSON(list);
+
+                return OKrequest.body(data);
+
+            } else {
+                JsonObject data = new Util().emptyArray();
+                return OKrequest.body(data.toString());
+
+            }
+
+        }
+        return ResponseEntity.badRequest().body("incorrect parameter");
+    }
+
+
 
 
 }

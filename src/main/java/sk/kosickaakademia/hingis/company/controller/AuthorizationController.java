@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sk.kosickaakademia.hingis.company.user.Login;
 import sk.kosickaakademia.hingis.company.util.Util;
 
 import java.util.HashMap;
@@ -18,6 +19,10 @@ public class AuthorizationController {
     private Map<String, String> tokens = new HashMap<>();
 
     private final String PASSWORD = "radovesilneheslo";
+
+    public String getPASSWORD() {
+        return PASSWORD;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<String>
@@ -37,7 +42,12 @@ public class AuthorizationController {
                 .get("pwd")
                 .getAsString();
 
-            if(pwd.equals(PASSWORD)) {
+        if(pwd.equals(PASSWORD)) {
+
+            boolean isUserBlocked = new Login().isUserBlocked(login, pwd);
+
+            if(!isUserBlocked) {
+
                 JsonObject jsonObject = new JsonObject();
 
                 String token = new Util().getToken();
@@ -48,10 +58,14 @@ public class AuthorizationController {
                 tokens.put(login, token);
 
                 return ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(jsonObject.toString());
+
+            } else {
+
+                return new ResponseEntity<>("User blocked", HttpStatus.UNAUTHORIZED);
             }
-            else {
-                return new ResponseEntity<>("Wrong password", HttpStatus.UNAUTHORIZED);
-            }
+        }
+
+        return new ResponseEntity<>("Wrong password", HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping("/secret")
