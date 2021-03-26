@@ -17,12 +17,7 @@ import java.util.Map;
 public class AuthorizationController {
 
     private Map<String, String> tokens = new HashMap<>();
-
-    private final String PASSWORD = "radovesilneheslo";
-
-    public String getPASSWORD() {
-        return PASSWORD;
-    }
+    private Login log = new Login();
 
     @PostMapping("/login")
     public ResponseEntity<String>
@@ -42,11 +37,7 @@ public class AuthorizationController {
                 .get("pwd")
                 .getAsString();
 
-        if(pwd.equals(PASSWORD)) {
-
-            boolean isUserBlocked = new Login().isUserBlocked(login, pwd);
-
-            if(!isUserBlocked) {
+            if(!log.isUserBlocked(login, pwd)) {
 
                 JsonObject jsonObject = new JsonObject();
 
@@ -63,9 +54,6 @@ public class AuthorizationController {
 
                 return new ResponseEntity<>("User blocked", HttpStatus.UNAUTHORIZED);
             }
-        }
-
-        return new ResponseEntity<>("Wrong password", HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping("/secret")
