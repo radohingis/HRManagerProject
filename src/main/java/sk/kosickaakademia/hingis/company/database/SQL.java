@@ -18,6 +18,7 @@ public class SQL {
             props.load(inputStream);
             String url = props.getProperty("url");
             String username = props.getProperty("username");
+            System.out.println(username);
             String password = props.getProperty("password");
 
             Connection connection = DriverManager.getConnection(url, username, password);
@@ -121,6 +122,23 @@ public class SQL {
                 }
             }
 
+        return false;
+    }
+
+    public boolean deleteUser(int id) {
+        try(Connection connection = connect()) {
+            String DELETEUSERQUERY = "delete from user where id = ?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(DELETEUSERQUERY);
+
+            preparedStatement.setInt(1, id);
+            int result = preparedStatement.executeUpdate();
+
+            return result == 1 ? true : false;
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         return false;
     }
 
